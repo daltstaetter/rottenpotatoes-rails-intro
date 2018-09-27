@@ -12,6 +12,22 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.all
+    
+    sort = params[:sort_list]
+    
+    doMySort(sort)
+  #  if sort == 'title' || sort == 'release_date'
+  #    @movies = @movies.order(sort)
+  #  end
+    
+  #if sort == 'title'
+  #  @title_header = 'hilite'
+  #elsif sort == 'release_date'
+  #  @release_date_header = 'hilite'
+  #end
+    
+    
+    
   end
 
   def new
@@ -37,9 +53,39 @@ class MoviesController < ApplicationController
 
   def destroy
     @movie = Movie.find(params[:id])
-    @movie.destroy
+    @movie.destroy # built in function, a ruby function
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
+  end
+
+  def sort_movies_by_name
+    @movie = Movie.all
+    #@movie = @movie.sort_by { |k| k[:title] }
+    @movie = Movie.all.sort_by { |k| k[:title] }
+    #@movie.update_attributes!(movie_params)  # take this out?
+    #redirect_to movies_path
+  end
+  
+  def sort_movies_by_release_date
+    @movie = Movie.all
+    @movie = @movie.sort_by { |date| date[:release_date][-4,4] } 
+    #@movie.update_attributes!(movie_params) # take this out?
+    redirect_to movies_path
+  end
+
+private
+
+  def doMySort(sort)
+    if sort == 'title' || sort == 'release_date'
+      @movies = @movies.order(sort)
+    end
+    
+    if sort == 'title'
+      @title_header = 'hilite'
+    elsif sort == 'release_date'
+      @release_date_header = 'hilite'
+    end
+    
   end
 
 end
