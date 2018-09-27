@@ -17,8 +17,10 @@ class MoviesController < ApplicationController
     doMySort(sort)
     
     @all_ratings = Movie.all_ratings
-    @selected_ratings = params[:ratings]
-    @movies = Movie.where("rating in (?)", @selected_ratings.keys)
+    @selected_ratings = params[:ratings] || {}
+    @movies = @selected_ratings.empty? ? Movie.all : Movie.where("rating in (?)", @selected_ratings.keys)
+    
+    doMySort(sort)
     
   end
 
