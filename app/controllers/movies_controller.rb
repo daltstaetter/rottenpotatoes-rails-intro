@@ -1,5 +1,7 @@
 class MoviesController < ApplicationController
 
+  @@sortedMovieList = nil
+
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
   end
@@ -12,16 +14,29 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.all
-    
-    sort = params[:sort_list]
-    doMySort(sort)
-    
     @all_ratings = Movie.all_ratings
+    sort = params[:sort_list]
     @selected_ratings = params[:ratings] || {}
-    @movies = @selected_ratings.empty? ? Movie.all : Movie.where("rating in (?)", @selected_ratings.keys)
+    
+    if @@sortedMovieList != nil
+      if sort == nil # check the ratings of the current movie list
+        @movies = @@sortedMovieList.where("rating in (?)", @selected_ratings.keys)
+        
+      else # make a new sort of the database
+        @movies = @selected_ratings.empty? ? Movie.all : Movie.where("rating in (?)", @selected_ratings.keys)
+      end
+    else
+      @movies = @selected_ratings.empty? ? Movie.all : Movie.where("rating in (?)", @selected_ratings.keys)
+    end
+                                                              #@selected_ratings = params[:ratings] || {}
+                                                              #@movies = @selected_ratings.empty? ? Movie.all : Movie.where("rating in (?)", @selected_ratings.keys)
     
     doMySort(sort)
     
+    
+    if @selected_ratings == {} # if nothing selected, check all ratings
+       @selected_ratings = {"G" => "1", "PG" => "1", "PG-13" => "1", "R" => "1"}
+    end
   end
 
   def new
@@ -52,26 +67,12 @@ class MoviesController < ApplicationController
     redirect_to movies_path
   end
 
-  def sort_movies_by_name
-    @movie = Movie.all
-    #@movie = @movie.sort_by { |k| k[:title] }
-    @movie = Movie.all.sort_by { |k| k[:title] }
-    #@movie.update_attributes!(movie_params)  # take this out?
-    #redirect_to movies_path
-  end
-  
-  def sort_movies_by_release_date
-    @movie = Movie.all
-    @movie = @movie.sort_by { |date| date[:release_date][-4,4] } 
-    #@movie.update_attributes!(movie_params) # take this out?
-    redirect_to movies_path
-  end
-
 private
 
   def doMySort(sort)
     if sort == 'title' || sort == 'release_date'
       @movies = @movies.order(sort)
+      @@sortedMovieList = @movies
     end
     
     if sort == 'title'
