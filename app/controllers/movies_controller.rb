@@ -13,29 +13,39 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    
     @all_ratings = Movie.all_ratings
-    sort = params[:sort_list]
-    @selected_ratings = params[:ratings] || {}
+    sort = params[:sort_list] || session[:sort_list] || {}
+    session[:ratings] = session[:ratings] || @all_ratings # corner case if nil
+    @selected_ratings = params[:ratings] || session[:ratings] || {}
     
-    if @@sortedMovieList != nil
-      if sort == nil # check the ratings of the current movie list
-        @movies = @@sortedMovieList.where("rating in (?)", @selected_ratings.keys)
-        
-      else # make a new sort of the database
-        @movies = @selected_ratings.empty? ? Movie.all : Movie.where("rating in (?)", @selected_ratings.keys)
-      end
-    else
-      @movies = @selected_ratings.empty? ? Movie.all : Movie.where("rating in (?)", @selected_ratings.keys)
-    end
-                                                              #@selected_ratings = params[:ratings] || {}
-                                                              #@movies = @selected_ratings.empty? ? Movie.all : Movie.where("rating in (?)", @selected_ratings.keys)
     
+    @movies = Movie.all
+
+            if @@sortedMovieList != nil
+                  if sort == nil # check the ratings of the previously sorted movie list
+                    @movies = @@sortedMovieList.where("rating in (?)", @selected_ratings.keys)
+                    
+                  else # make a new sort of the database
+                    @movies = @selected_ratings.empty? ? Movie.all : Movie.where("rating in (?)", @selected_ratings.keys)
+                  end
+            else
+                    @movies = @selected_ratings.empty? ? Movie.all : Movie.where("rating in (?)", @selected_ratings.keys)
+            end
     doMySort(sort)
-    
-    
     if @selected_ratings == {} # if nothing selected, check all ratings
-       @selected_ratings = {"G" => "1", "PG" => "1", "PG-13" => "1", "R" => "1"}
+       @selected_ratings = {"G" => "1", "PG" => "1", "PG-13" => "1", "R" => "1", "NC-17" => "1"}
+    end
+    
+    
+    #update my most recent changes for next request
+    session[:sort_list] = sort
+    session[:ratings] = @selected_ratings
+    
+    # if missing the proper params we need to redirect with the proper param settings
+    if (params[:sort_list] == nil and session[:sort_list] != nil) or (params[:ratings] == nil and session[:ratings] != nil)
+      flash.keep
+      redirect_to movies_path(:sort_list => session[:sort_list], :ratings => session[:ratings])
     end
   end
 
