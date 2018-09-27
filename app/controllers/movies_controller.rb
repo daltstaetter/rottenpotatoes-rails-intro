@@ -14,19 +14,11 @@ class MoviesController < ApplicationController
     @movies = Movie.all
     
     sort = params[:sort_list]
-    
     doMySort(sort)
-  #  if sort == 'title' || sort == 'release_date'
-  #    @movies = @movies.order(sort)
-  #  end
     
-  #if sort == 'title'
-  #  @title_header = 'hilite'
-  #elsif sort == 'release_date'
-  #  @release_date_header = 'hilite'
-  #end
-    
-    
+    @all_ratings = Movie.all_ratings
+    @selected_ratings = params[:ratings]
+    @movies = Movie.where("rating in (?)", @selected_ratings.keys)
     
   end
 
