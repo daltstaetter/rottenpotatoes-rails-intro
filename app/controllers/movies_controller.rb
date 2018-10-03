@@ -44,7 +44,7 @@ class MoviesController < ApplicationController
       # save session state
       session[:sort_list] = sort
       session[:ratings] = @selected_ratings
-      #redirect_to movies_path(:sort_list => session[:sort_list], :ratings => session[:ratings])
+      redirect_to movies_path(:sort_list => session[:sort_list], :ratings => session[:ratings])
     end
     
     # save session state
