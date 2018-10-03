@@ -16,7 +16,7 @@ class MoviesController < ApplicationController
     
     @all_ratings = Movie.all_ratings
     sort = params[:sort_list] || session[:sort_list] || {}
-    session[:ratings] = session[:ratings] || @all_ratings # corner case if nil
+    session[:ratings] = session[:ratings] || {"G" => "1", "PG" => "1", "PG-13" => "1", "R" => "1", "NC-17" => "1"} # corner case if nil
     @selected_ratings = params[:ratings] || session[:ratings] || {}
     
     
