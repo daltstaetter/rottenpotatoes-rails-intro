@@ -1,6 +1,7 @@
 class MoviesController < ApplicationController
 
   @@sortedMovieList = nil
+  @@redirected_once = nil
 
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
@@ -38,8 +39,9 @@ class MoviesController < ApplicationController
     end
     
     # if missing the proper params we need to redirect with the proper param settings
-    if (params[:sort_list] == nil and session[:sort_list] != nil) or (params[:ratings] == nil and session[:ratings] != nil)
+    if (params[:sort_list] == nil and session[:sort_list] != nil and @@redirected_once == nil) or (params[:ratings] == nil and session[:ratings] != nil and @@redirected_once == nil)
       flash.keep
+      @@redirected_once = true;
       
       # save session state
       session[:sort_list] = sort
