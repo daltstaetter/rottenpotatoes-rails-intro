@@ -37,16 +37,19 @@ class MoviesController < ApplicationController
        @selected_ratings = {"G" => "1", "PG" => "1", "PG-13" => "1", "R" => "1", "NC-17" => "1"}
     end
     
-    
-    #update my most recent changes for next request
-    session[:sort_list] = sort
-    session[:ratings] = @selected_ratings
-    
     # if missing the proper params we need to redirect with the proper param settings
     if (params[:sort_list] == nil and session[:sort_list] != nil) or (params[:ratings] == nil and session[:ratings] != nil)
       flash.keep
-      redirect_to movies_path(:sort_list => session[:sort_list], :ratings => session[:ratings])
+      
+      # save session state
+      session[:sort_list] = sort
+      session[:ratings] = @selected_ratings
+      #redirect_to movies_path(:sort_list => session[:sort_list], :ratings => session[:ratings])
     end
+    
+    # save session state
+    session[:sort_list] = sort
+    session[:ratings] = @selected_ratings
   end
 
   def new
